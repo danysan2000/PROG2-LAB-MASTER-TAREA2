@@ -1,7 +1,10 @@
 #include "../include/persona.h"
 
 struct rep_persona {
-
+    int ci;
+    const char nombre[MAX_NOMBRE_PERSONA];
+    const char apellido[MAX_APELLIDO_PERSONA];
+    TFecha fechaNacimiento;
 };
 
 TPersona crearTPersona(int ci, const char nombre[MAX_NOMBRE_PERSONA], const char apellido[MAX_APELLIDO_PERSONA], nat diaNac, nat mesNac, nat anioNac){
