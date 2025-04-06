@@ -18,6 +18,7 @@
 // Constante para definir el largo máximo del nombre y apellido de una persona
 const int MAX_NOMBRE_PERSONA = 100;
 const int MAX_APELLIDO_PERSONA = 100;
+
 // Constante para definir la cantidad máxima de perros adoptados por una persona
 const int MAX_PERROS_PERSONA = 5;
 
