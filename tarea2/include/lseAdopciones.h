@@ -1,16 +1,17 @@
 /*
   Módulo de definición de 'TLSEAdopciones'.
 
-  Un elemento de tipo TLSEAdopciones es una lista simplemente enlazada, en la que cada elemento contiene un TPersona, un TPerro y un TFecha 
-  para representar que una persona adoptó un perro en una fecha determinada.
+  Un elemento de tipo TLSEAdopciones es una lista simplemente enlazada, en la
+  que cada elemento contiene un TPersona, un TPerro y un TFecha para
+  representar que una persona adoptó un perro en una fecha determinada.
+  
   Una adopción se identifica por la cédula de la persona y el id del perro.
 
-  Laboratorio de Programación 2.
-  InCo-FIng-UDELAR
  */
-#ifndef LSEADOPCIONES_H
-#define LSEADOPCIONES_H
 
+#ifndef LSEADOPCIONES_H 
+
+#define LSEADOPCIONES_H
 #include "persona.h"
 
 // Define el tipo TLSEAdopciones como un puntero a rep_lseadopciones

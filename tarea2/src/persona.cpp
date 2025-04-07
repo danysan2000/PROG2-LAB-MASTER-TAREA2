@@ -32,14 +32,13 @@ void imprimirTPersona(TPersona persona)
 	int aux;
 	printf("Persona %s %s\nCI: %d\n", persona->nombre, persona->apellido, persona->ci );
 	printf("Fecha de Nacimiento: "); imprimirTFecha( persona->fechaNacimiento);
-	printf("\nPerros adoptados:\n");
+	printf("Perros adoptados:\n");
 	for( aux=0 ; aux < persona->perrosAdoptados.tope; aux++)
 		imprimirTPerro( persona->perrosAdoptados.perros[aux]);
 }
 
 void liberarTPersona(TPersona &persona)
 {
-	// #define p persona
     TPersona p; 
 	int  ax2;  // auxliar loops
     p = persona; // auxliar 
@@ -48,7 +47,7 @@ void liberarTPersona(TPersona &persona)
 	// libero TPerros. O(n)
 	ax2 = p->perrosAdoptados.tope ;
 	for( ; ax2 ; ax2--)
-		liberarTPerro( p->perrosAdoptados.perros[ax2] );
+		liberarTPerro( p->perrosAdoptados.perros[ax2-1] );
 	//
 	delete p;
     persona = NULL;
@@ -76,14 +75,12 @@ TFecha fechaNacimientoTPersona(TPersona persona)
 
 void agregarPerroTPersona(TPersona &persona, TPerro perro)
 {
-	TPersona prs;
-	TPerro per;
+    TPerro per;
 	int *aux_tope;
-	prs = persona;
-	aux_tope = &prs->perrosAdoptados.tope ;
+	aux_tope = &persona->perrosAdoptados.tope ;
 	if ( *aux_tope == MAX_PERROS_PERSONA ) return;
 	per = copiarTPerro( perro );
-	prs->perrosAdoptados.perros[*aux_tope] = per;
+	persona->perrosAdoptados.perros[*aux_tope] = per;
 	(*aux_tope)++;
 }
 
@@ -91,7 +88,7 @@ bool pertenecePerroTPersona(TPersona persona, int idPerro)
 {
 	int aux1;
 	aux1 = persona->perrosAdoptados.tope;
-   	while( 	aux1 &&  idTPerro ( persona->perrosAdoptados.perros[aux1]) != idPerro ) aux1--;
+   	while( 	aux1 &&  idTPerro ( persona->perrosAdoptados.perros[aux1-1]) != idPerro ) aux1--;
     return aux1; // evalua por el valor logico de la expresion.
 }
 
@@ -103,7 +100,12 @@ int cantidadPerrosTPersona(TPersona persona)
 TPersona copiarTPersona(TPersona persona)
 {
 	TPersona p;
+    int aux1;
 	p = new rep_persona;
-	p = persona;
-    return p;
+	*p = *persona;
+    p->fechaNacimiento = copiarTFecha( persona->fechaNacimiento );
+    aux1 = persona->perrosAdoptados.tope;
+    for ( ; aux1 ; aux1--)
+        p->perrosAdoptados.perros[aux1-1] = copiarTPerro( persona->perrosAdoptados.perros[aux1-1] );
+return p;
 }

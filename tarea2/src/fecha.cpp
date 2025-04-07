@@ -23,9 +23,13 @@ void liberarTFecha(TFecha &fecha)
     fecha = NULL;
 }
 
+/* ? que pasa si fecha es NULL ? */
 void imprimirTFecha(TFecha fecha) 
 {
-    printf("%d/%d/%d\n",fecha->dia,fecha->mes,fecha->anio);   
+    if ( fecha == NULL )
+        printf("\n");
+    else
+        printf("%d/%d/%d\n",fecha->dia,fecha->mes,fecha->anio);   
 }
 
 TFecha copiarTFecha(TFecha fecha) 
