@@ -13,11 +13,14 @@ struct rep_lseadopciones
 
 TLSEAdopciones crearTLSEAdopcionesVacia()
 {
+	/*
     TLSEAdopciones tlseadop = new rep_lseadopciones ;
 	tlseadop->prs = NULL;
    	tlseadop->per = NULL;
    	tlseadop->fechaAdop = NULL ;
-return tlseadop;
+	tlseadop->sig = NULL;
+	*/
+return NULL;
 }
 
 
@@ -29,7 +32,7 @@ bool esVaciaTLSEAdopciones(TLSEAdopciones lseAdopciones)
 void imprimirTLSEAdopciones(TLSEAdopciones lseAdopciones)
 {
 	
-	TLSEAdopciones aux1 = lseAdopciones ;
+	TLSEAdopciones ax1 = lseAdopciones ;
 	while( ax1 != NULL )
 	{		
 		printf("---------------------------\n");
@@ -48,12 +51,9 @@ void imprimirTLSEAdopciones(TLSEAdopciones lseAdopciones)
 
 void liberarTLSEAdopciones(TLSEAdopciones &lseAdopciones)
 {
-	TLSEAdopciones  axAdop = lseAdopciones, axAdop2;
-
-	if ( axAdop == NULL ) return;
-
-	// axData1 = axAdop->data;
-	while( axAdop != NULL  )
+	#define axAdop lseAdopciones
+	TLSEAdopciones axAdop2;
+	while( axAdop  != NULL  )
 	{
 		liberarTFecha(axAdop->fechaAdop );
 		liberarTPerro(axAdop->per);
@@ -64,69 +64,114 @@ void liberarTLSEAdopciones(TLSEAdopciones &lseAdopciones)
 	}
 }
 
-#define CODIGO_PERSONA_PERRO (ciTPersona(ax_data->prs)==ciTPersona(persona)) && (idTPerro(ax_data->per)==idTPerro(perro))
 
 void insertarTLSEAdopciones(TLSEAdopciones &lseAdopciones, TFecha fecha, TPersona persona, TPerro perro)
 {
 	TLSEAdopciones ax1 = lseAdopciones;
-	TLSEAdopciones ax1_sel; // registro selecionado.
+	TLSEAdopciones ax1_sel, ax1_new; // registro selecionado.
 	int res_fecha; 		// resultado comparacion fechas
-	int ctl; // control switch
-						//
+						
 	// step 1. Verificar que key( persona->ci, perro->id ) no exista.
 	if ( existeAdopcionTLSEAdopciones( ax1, ciTPersona(persona) , idTPerro(perro) ) ) 
 	   return ; // existe.
 
-	ctl = 0;
+	// step 2. Insertar En la Lista ordenada de menor a mayor por fecha.
+	//     Considerar el tema de la Fecha igual  va despues de la ultima fecha igual 
+	ax1_sel = ax1; // el primero seleccionado.
 	while( ax1 != NULL ) //Busco donde insertar
 	{
-
-		switch( ctl )
+		res_fecha = compararTFechas( fecha , ax1->fechaAdop );
+		// ax1_sel = ax1;
+		if( res_fecha < 0 )
+			ax1 = NULL;
+		else
 		{
-			case 1:
-				res_fecha = compararTFechas( fecha , ax1->fechaAdop );
-				if ( res_fecha == 0 ) { flg = 2; } // al final del conjunto fechas iguales ;
-				if ( res_fecha < 0 ) { flg = 0; ax_data_sel = ax_data; } // insertar aca
-				break;
-			case 2: // fechas iguales.
-				res_fecha = compararTFechas( fecha , ax_data->fechaAdop );
-				if ( res_fecha != 0 )  // al final del conjunto fechas iguales ;
-				break;
-			case 0;
-
+			ax1_sel = ax1; // conservo este como anterior para poder insertar.
+			ax1 = ax1->sig;	
 		}
-			ax_data = ax_data->sig;
 	}
-		if (aux_data != NULL) return; // ya existe.
-	
+	// Inserto en donde esta ax1_sel apuntando.
+	ax1_new = new rep_lseadopciones ;
+	ax1_new->prs = persona ;		// copiarTPersona(persona);
+	ax1_new->per = perro ; 			// copiarTPerro(perro);
+	ax1_new->fechaAdop = fecha ;	// copiarTFecha( fecha );
 
-	// step 2. Insertar En la Lista ordenada de menor a mayor por fecha.
-	//     Considerar el tema de la Fecha va despues de la ultima fecha igual 
-		res_fecha = compararTFechas( fecha , ax_data->fechaAdop );
-	// Inserto en donde esta ax_data apuntando.
-	    // Situaciones: ax_data es NULL , porque no hay nada en la lista o porque es el ultimo.
-		// Si no es ultimo hay que insertar a partir de este.
-	// primero si es ax_data == NULL 
+	// ojo aca.
+	if( ax1_sel == NULL )
 	{
-			ax_data->prs = copiarTPersona(persona);
-			ax_data->per = copiarTPerro(perro);
-		// Inserto apartir de esta posicion.
-		// Considerando la fecha si es igual
-
+		lseAdopciones = ax1_sel = ax1_new;
+		ax1_new->sig = NULL;
+	}
+	else
+	{
+		ax1_new->sig = ax1_sel->sig;
+		ax1_sel->sig = ax1_new;
+	}
 }
+
+
+#define CODIGO_PERSONA_PERRO(ptr,a,b)  ( (ciTPersona(ptr->prs)== a ) && (idTPerro(ptr->per)==b) )
 
 bool existeAdopcionTLSEAdopciones(TLSEAdopciones lseAdopciones, int ciPersona, int idPerro)
 {
-	return false;
+	TLSEAdopciones ax1 = lseAdopciones ; // auxiliar
+	
+	while( ax1 != NULL && !CODIGO_PERSONA_PERRO(ax1,ciPersona, idPerro) )
+	   	ax1 = ax1->sig;
+	return (ax1 != NULL ); // verdadero existe
 }
 
 void removerAdopcionTLSEAdopciones(TLSEAdopciones &lseAdopciones, int ciPersona, int idPerro)
 {
-	TLSEAdopciones ax1;
-	// check si existe.
-	if ( !existeAdopcionTLSEAdopciones(TLSEAdopciones lseAdopciones, int ciPersona, int idPerro))
-		return ; // no existe
-	ax1 = lseAdopciones;
-
+	TLSEAdopciones ax1= lseAdopciones, ax1_ant;
+	ax1_ant = ax1;
+	while( ax1 != NULL && !CODIGO_PERSONA_PERRO(ax1,ciPersona, idPerro) )
+	{
+		ax1_ant = ax1;
+		ax1 = ax1->sig;
+	}
+	// ajusto punteros.
+	if( ax1_ant == ax1 )
+		lseAdopciones = ax1->sig;
+	else
+		ax1_ant->sig = ax1->sig;
+	// remuevo ax1
+		liberarTFecha(ax1->fechaAdop );
+		liberarTPerro(ax1->per);
+		liberarTPersona(ax1->prs);
+		delete ax1;
+	return ;
 }
 
+//--------------------------------------------------------------------------------
+//Funciones auxiliares. probable no la use.
+
+// prototypes 
+/*
+static void insComienzo(A e, Lista & l);
+static void insOrd(A e, Lista & l);
+
+// static void insComienzo(A e, Lista & l)
+static void insComienzo(A e, Lista & l)
+{
+	Lista nuevo = new nodoLista;
+	nuevo->info = e;
+	nuevo->sig = l;
+	l=nuevo;
+}
+
+
+static void insOrd(A e, Lista & l)
+{
+	if (l == NULL)
+	   	insComienzo(e, l);
+	else
+	{
+	if (e <= l->info)
+	   	insComienzo(e, l);
+	else
+	   	insOrd(e, l->sig);
+	}
+}
+
+*/

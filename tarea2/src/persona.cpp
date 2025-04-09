@@ -41,7 +41,7 @@ void liberarTPersona(TPersona &persona)
 {
     TPersona p; 
 	int  ax2;  // auxliar loops
-    p = persona; // auxliar 
+	p = persona; // auxliar 
 	// libero TFecha
 	liberarTFecha( p->fechaNacimiento );
 	// libero TPerros. O(n)
