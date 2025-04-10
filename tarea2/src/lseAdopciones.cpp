@@ -97,6 +97,7 @@ void insertarTLSEAdopciones(TLSEAdopciones &lseAdopciones, TFecha fecha, TPerson
 	ax1_new->fechaAdop = fecha ;	// copiarTFecha( fecha );
 
 	// ojo aca.
+	// TENGO QUE DETECTAR CUANDO ES EL PRIMERO.
 	if( ax1_sel == NULL )
 	{
 		lseAdopciones = ax1_sel = ax1_new;
