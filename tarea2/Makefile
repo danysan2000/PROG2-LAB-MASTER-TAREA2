@@ -32,7 +32,7 @@ all: principal
 
 ARCHIVO_ENTREGA=EntregaTarea2.tar.gz
 
-ENTREGAR = perro persona lseAdopciones ldePerros abbPersonas
+ENTREGAR = perro persona lseAdopciones ldePerros abbPersonas fecha
 
 MODULOS = $(ENTREGAR) fecha utils
 

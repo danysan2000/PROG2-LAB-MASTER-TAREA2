@@ -78,17 +78,10 @@ void insertarTLSEAdopciones(TLSEAdopciones &lseAdopciones, TFecha fecha, TPerson
 	// step 2. Insertar En la Lista ordenada de menor a mayor por fecha.
 	//     Considerar el tema de la Fecha igual  va despues de la ultima fecha igual 
 	ax1_sel = ax1; // el primero seleccionado.
-	while( ax1 != NULL ) //Busco donde insertar
+	while( ax1 != NULL &&  0 < compararTFechas(fecha,ax1->fechaAdop)) //Busco donde insertar
 	{
-		res_fecha = compararTFechas( fecha , ax1->fechaAdop );
-		// ax1_sel = ax1;
-		if( res_fecha < 0 )
-			ax1 = NULL;
-		else
-		{
 			ax1_sel = ax1; // conservo este como anterior para poder insertar.
 			ax1 = ax1->sig;	
-		}
 	}
 	// Inserto en donde esta ax1_sel apuntando.
 	ax1_new = new rep_lseadopciones ;
@@ -98,10 +91,15 @@ void insertarTLSEAdopciones(TLSEAdopciones &lseAdopciones, TFecha fecha, TPerson
 
 	// ojo aca.
 	// TENGO QUE DETECTAR CUANDO ES EL PRIMERO.
-	if( ax1_sel == NULL )
+	if( ax1 == NULL ) // lista vacia.
 	{
 		lseAdopciones = ax1_sel = ax1_new;
 		ax1_new->sig = NULL;
+	}
+	else if ( lseAdopciones == ax1 ) // es el primero.
+	{
+		ax1_new->sig = lseAdopciones;
+		lseAdopciones = ax1_new;
 	}
 	else
 	{
@@ -132,15 +130,16 @@ void removerAdopcionTLSEAdopciones(TLSEAdopciones &lseAdopciones, int ciPersona,
 		ax1 = ax1->sig;
 	}
 	// ajusto punteros.
-	if( ax1_ant == ax1 )
+	// if( ax1_ant == ax1 )
+	if( lseAdopciones  == ax1 ) // primero.
 		lseAdopciones = ax1->sig;
 	else
 		ax1_ant->sig = ax1->sig;
 	// remuevo ax1
-		liberarTFecha(ax1->fechaAdop );
-		liberarTPerro(ax1->per);
-		liberarTPersona(ax1->prs);
-		delete ax1;
+	liberarTFecha(ax1->fechaAdop );
+	liberarTPerro(ax1->per);
+	liberarTPersona(ax1->prs);
+	delete ax1;
 	return ;
 }
 
