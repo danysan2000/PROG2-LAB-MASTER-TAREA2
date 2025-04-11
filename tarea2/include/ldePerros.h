@@ -51,7 +51,7 @@ void imprimirTLDEPerros(TLDEPerros ldePerros);
 // La función es O(n) peor caso, donde n es la cantdiad de perros en la lista.
 void imprimirInvertidoTLDEPerros(TLDEPerros ldePerros);
 
-// Función quer retorna la cantidad de perros en la lista.
+// Función que retorna la cantidad de perros en la lista.
 /* Requisitos específicos de la implementación solicitada: */
 // La función es O(1) peor caso, donde n es la cantidad de perros en la lista
 nat cantidadTLDEPerros(TLDEPerros ldePerros);
