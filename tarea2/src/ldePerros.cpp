@@ -2,37 +2,44 @@
 
 typedef struct rep_nodo_perros *TLDEPerrosNodo;
 
-struct rep_nodo_perros {   // Nodo de la lista DE.
+struct rep_nodo_perros {           // Nodo de la lista DE.
 	TPerro per;
 	struct rep_nodo_perros *ant;  // nodo anterior.
 	struct rep_nodo_perros *sig;  // nodo siguiente.
 };
 
 
-struct rep_tldeperros {    // cabezal de la lista DE.
-	struct rep_nodo_perros *prm; // Inicio.
-	struct rep_nodo_perros *ult; // Final.
-	nat cant_nodos;        // cantindad de nodos en rep_Nodo_perros
+struct rep_tldeperros {    			// cabezal de la lista DE.
+	struct rep_nodo_perros *prm; 	// Inicio.
+	struct rep_nodo_perros *ult; 	// Final.
+	nat cant_nodos;        			// cantindad de nodos en rep_Nodo_perros
+	TLDEPerrosNodo nodo_sel;		// auxiliar nodo seleccionado.
+//  int  magic;  valor para validar si el encabezamiento es valido. <- feature .
 };
 
 TLDEPerros crearTLDEPerrosVacia()
 {
 	TLDEPerros ax1;  // auxiliar 
-	ax1 = new struct rep_tldeperros;
-	ax1->prm = NULL;
-	ax1->ult = NULL;
+	            ax1 = new struct rep_tldeperros;
+	ax1->prm        = NULL;
+	ax1->ult        = NULL;
 	ax1->cant_nodos = 0;
+	ax1->nodo_sel   = NULL;
+// 	ax1->magic      = 0xhhhh; // valor magic para determinar si la direccion es valida
    	return  ax1;
 }
 
 void insertarTLDEPerros(TLDEPerros &ldePerros, TPerro perro)
 {
 	// ldePerros nunca se cambia , no se toca.
-	TLDEPerros  ax1_cab; // auxiliar
+	TLDEPerros  ax1_cab;         // auxiliar
 	TLDEPerrosNodo ax1_new, ax1;
-	nat ax_edad;    // auxiliar
+	nat ax_edad;                 // auxiliar
+	int aux_cond; 				 // auxiliar condicional control de punteros de tabla.
+
 	if ( ldePerros == NULL ) return ; // No se creo la ListaVacia.
-    if ( existePerroTLDEPerros( ldePerros,  idTPerro(perro)) ) return ; // el perro ya existe.
+    if ( existePerroTLDEPerros( ldePerros,  idTPerro(perro)) )
+	   return ;  // el perro ya existe.
 
 	ax1_cab      = ldePerros;					// reg cabezal
 
@@ -40,41 +47,43 @@ void insertarTLDEPerros(TLDEPerros &ldePerros, TPerro perro)
 	ax1_new->per = perro;
 	ax1_new->sig = NULL;
 	ax1_new->ant = NULL;
+
 	ax1_cab->cant_nodos++;
 	ax_edad      = edadTPerro(perro);
 
 	ax1 = ax1_cab->prm; // primero
 	while( ax1 != NULL &&  !( ax_edad <= edadTPerro(ax1->per) )) // busco ubicacion.
 			ax1 = ax1->sig;
+
 	// insertar aca.
-	if ( ax1 == NULL ) // insertar despues del ultimo o antes 
+	// Tabla de decision.
+	aux_cond =  ( (ax1==NULL) && (ax1_cab->prm==NULL) ) * 1 +
+		        ( (ax1==NULL) && (ax1_cab->prm!=NULL) ) * 2 +
+				  (ax1!=NULL) * 3 +
+                ( (ax1!=NULL) && (ax1->ant!=NULL) ) * 1 +
+				( (ax1!=NULL) && (ax1->ant==NULL) ) * 2 ;
+	switch( aux_cond)
 	{
-		//analizando distintas situaciones.
-		if ( ax1_cab->prm == NULL ) // la lista esta vacia
-		{
-			ax1_cab->prm = ax1_cab->ult = ax1_new;
-		}
-		else // es el ultimo inserto ? antes o despues ? -> despues
-		{
-			ax1_new->ant      = ax1_cab->ult;
-			ax1_cab->ult->sig = ax1_new;
-			ax1_cab->ult      = ax1_new;
-		}
-	}
-	else
-	{
-		ax1_new->ant = ax1->ant; // (1)
-		ax1_new->sig = ax1;      // (2)
-		if( ax1->ant != NULL )
-		{
-			ax1->ant->sig = ax1_new;
-			ax1->ant      = ax1_new;
-		}
-		else
-		{
-			ax1->ant     = ax1_new;
-			ax1_cab->prm = ax1_new;
-		}
+		case 1:
+			ax1_cab->prm = ax1_cab->ult = ax1_new; // (1)
+			break;
+		case 2:
+			ax1_new->ant      = ax1_cab->ult;     // (2)
+			ax1_cab->ult->sig = ax1_new;          // (2)
+			ax1_cab->ult      = ax1_new;          // (2)
+			break;
+		case 4:
+			ax1_new->ant = ax1->ant; // (3)
+			ax1_new->sig = ax1;      // (3)
+			ax1->ant->sig = ax1_new;  // (4)
+			ax1->ant      = ax1_new;  // (4)
+			break;
+		case 5:
+			ax1_new->ant = ax1->ant; // (3)
+			ax1_new->sig = ax1;      // (3)
+			ax1->ant     = ax1_new;  // (5)
+			ax1_cab->prm = ax1_new;  // (5)
+			break;
 	}
 }
 
@@ -132,8 +141,6 @@ nat cantidadTLDEPerros(TLDEPerros ldePerros)
 }
 
 
-static TLDEPerrosNodo recording_idPerro;
-
 TPerro removerPerroTLDEPerros(TLDEPerros &ldePerros, int id)
 {
 	// Por las especificaciones de la letra:
@@ -148,9 +155,11 @@ TPerro removerPerroTLDEPerros(TLDEPerros &ldePerros, int id)
 	if ( !existePerroTLDEPerros( ldePerros,  id) ) return NULL ;
 	// El id existe -- en recording_idPerro tengo el nodo a remover de la lista.
 	//
-	ax1 = recording_idPerro;
+	ax1 = ax1_cab->nodo_sel;
+	ax1_cab->cant_nodos--; // descuento cantidad total de nodos.
 	// aux_cond valores 0,1,2,3 representando las 4 posibles situaciones de los punteros
 	// ->sig y ->ant
+	// Tabla de decision.
 	aux_cond =  ( ax1->sig == NULL ) * 1 + ( ax1->ant == NULL ) * 2 ;
 	switch( aux_cond )
 	{
@@ -159,10 +168,12 @@ TPerro removerPerroTLDEPerros(TLDEPerros &ldePerros, int id)
 			ax1->sig->ant = ax1->ant;  // [2]
 			break;
 		case 1:  // sig == NULL Y ant != NULL  <-- ultimo
-			
+			ax1_cab->ult   = ax1->ant;
+			ax1->ant->sig  = NULL;	
 			break;
 		case 2:  // sig  != NULL Y ant == NULL  <-- primero
-
+			ax1_cab->prm  = ax1->sig;
+			ax1->sig->ant = NULL;
 			break;
 		case 3:  // sig == NULL Y ant == NULL   <-- solo un registro.
 			ax1_cab->cant_nodos = 0;
@@ -203,6 +214,6 @@ bool existePerroTLDEPerros(TLDEPerros ldePerros, int id)
 	ax1 = ax1_cab->prm;
 	while( ax1 != NULL && ( id != idTPerro(ax1->per) ) )
 		ax1 = ax1->sig;
-    return ( recording_idPerro = ax1);
+    return ( ax1_cab->nodo_sel = ax1);
 }
 

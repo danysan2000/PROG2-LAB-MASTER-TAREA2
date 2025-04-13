@@ -1,0 +1,32 @@
+
+/*		
+	if ( ax1 == NULL ) // insertar despues del ultimo o antes 
+	{
+		//analizando distintas situaciones.
+		if ( ax1_cab->prm == NULL ) // la lista esta vacia
+		{
+			ax1_cab->prm = ax1_cab->ult = ax1_new; // (1)
+		}
+		else // es el ultimo inserto ? antes o despues ? -> despues
+		{
+			ax1_new->ant      = ax1_cab->ult;     // (2)
+			ax1_cab->ult->sig = ax1_new;          // (2)
+			ax1_cab->ult      = ax1_new;          // (2)
+		}
+	}
+	else
+	{
+		ax1_new->ant = ax1->ant; // (3)
+		ax1_new->sig = ax1;      // (3)
+		if( ax1->ant != NULL )
+		{
+			ax1->ant->sig = ax1_new;  // (4)
+			ax1->ant      = ax1_new;  // (4)
+		}
+		else
+		{
+			ax1->ant     = ax1_new;  // (5)
+			ax1_cab->prm = ax1_new;  // (5)
+		}
+	}
+*/

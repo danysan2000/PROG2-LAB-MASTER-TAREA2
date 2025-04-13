@@ -1,7 +1,5 @@
 #include "../include/lseAdopciones.h"
 
-
-
 struct rep_lseadopciones 
 {
 	TPersona		prs;			// Persona

@@ -1,18 +1,30 @@
 
 #include "../include/abbPersonas.h"
 
+/*
+struct rep_abbPersonasNodo {
+
+};
+*/
+// ? cabezal ? ( rep_abbPersonas ) 
 struct rep_abbPersonas {
+	int  ci;        // KEY: ci de Persona 
+	TPersona per;  // Dato 
+	TABBPersonas  left, right;
 };
 
-TABBPersonas crearTABBPersonasVacio(){
+TABBPersonas crearTABBPersonasVacio()
+{
     return NULL;
 }
 
-void insertarTPersonaTABBPersonas(TABBPersonas &abbPersonas, TPersona persona){
+void insertarTPersonaTABBPersonas(TABBPersonas &abbPersonas, TPersona persona)
+{
 
 }
 
-void imprimirTABBPersonas(TABBPersonas abbPersonas){
+void imprimirTABBPersonas(TABBPersonas abbPersonas)
+{
 
 }
 
