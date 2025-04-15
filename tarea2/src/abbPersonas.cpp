@@ -4,17 +4,13 @@
 
 //static TABBPersonas CtlTree( TABBPersonas &abbPersonas ,  int fun );
 
-// ? cabezal ? ( rep_abbPersonas ) 
-//
-// NO SE PUEDE AGREGAR CABEZAL 
-
+// ? cabezal ? ( rep_abbPersonas )-->  NO SE PUEDE AGREGAR CABEZAL 
 /* struct rep_abbPersonasNodo {
-
 };
 */
 
 struct rep_abbPersonas {
-	int  key;        // KEY: ci de Persona(para no tener que estar accediendo a persona cada vez que se usa)
+	int  key; // KEY:ci de Persona(para no estar accediendo a persona cada vez que se usa)
 	TPersona per;  // Dato 
 	TABBPersonas  left, right;
 };
@@ -25,17 +21,10 @@ TABBPersonas crearTABBPersonasVacio()
     return NULL;
 }
 
-// Prototype
-static void insABB (int key, TPersona dato, TABBPersonas &t);
-
-void insertarTPersonaTABBPersonas(TABBPersonas &abbPersonas, TPersona persona)
-{
-	int key;
-	key = ciTPersona(persona);
-	insABB( key , persona , abbPersonas );
-}
-
-static void insABB (int key, TPersona dato, TABBPersonas & t)
+//---insertar Persona.
+//
+//----- funcion auxliar
+static void insAbbPersona(int key, TPersona dato, TABBPersonas & t)
 {
 	if (t == NULL)
 	{
@@ -45,23 +34,42 @@ static void insABB (int key, TPersona dato, TABBPersonas & t)
 		t->left = t->right = NULL;
 	}
 	else if ( key  < t->key)
-		insABB (key , dato, t->left);
+		insAbbPersona(key , dato, t->left);
 	else if ( key > t->key)
-		insABB ( key , dato, t->right);
+		insAbbPersona( key , dato, t->right);
+}
+
+
+void insertarTPersonaTABBPersonas(TABBPersonas &abbPersonas, TPersona persona)
+{
+	int key;
+	key = ciTPersona(persona);
+	insAbbPersona( key , persona , abbPersonas );
+}
+
+
+//----- imprimirTABBPersonas ----
+//---funcion auxliar.
+
+static void imprimirTABB_PenOrden (TABBPersonas t)
+{
+	if (t != NULL)
+	{
+		imprimirTABB_PenOrden(t->left);
+		  imprimirTPersona( t->per );
+		imprimirTABB_PenOrden(t->right);
+	}
 }
 
 void imprimirTABBPersonas(TABBPersonas abbPersonas)
 {
-
+	imprimirTABB_PenOrden( abbPersonas );
 }
 
-static void liberarTABB_postOrden (TABBPersonas &t);
 
-void liberarTABBPersonas(TABBPersonas &abbPersonas)
-{
-	// recorrer todo el arbol
-	liberarTABB_postOrden ( abbPersonas);
-}
+//--LiberarTABBPersonas--------
+// static void liberarTABB_postOrden (TABBPersonas &t);
+// funcion auxliar.
 
 static void liberarTABB_postOrden (TABBPersonas &t)
 {
@@ -75,36 +83,233 @@ static void liberarTABB_postOrden (TABBPersonas &t)
 	}
 }
 
+void liberarTABBPersonas(TABBPersonas &abbPersonas)
+{
+	// recorrer todo el arbol
+	//if ( abbPersonas == NULL ) return;
+	liberarTABB_postOrden ( abbPersonas);
+	abbPersonas= NULL;
+}
+
+//----- existeTPersona
+
+//----- funcion auxiliar.
+
+static TABBPersonas buscarTABBPersonas(int key , TABBPersonas t)
+{
+	while( ( t != NULL) && (t->key != key) )
+	{
+		if (t->key > key)
+			t = t->left;
+		else
+		   	t = t->right;
+	}
+	return t;
+}
+
 bool existeTPersonaTABBPersonas(TABBPersonas abbPersonas, int ciPersona)
 {
-    return false;
+    return ( buscarTABBPersonas(ciPersona, abbPersonas) );
 }
 
-TPersona obtenerTPersonaTABBPersonas(TABBPersonas abbPersonas, int ciPersona){
-    return NULL;
+// ---- obteerTPersonaTABBPersonas ---
+
+TPersona obtenerTPersonaTABBPersonas(TABBPersonas abbPersonas, int ciPersona)
+{
+	TABBPersonas ax1; // auxiliar 
+	TPersona res = NULL;
+	
+    if( (ax1=buscarTABBPersonas(ciPersona, abbPersonas)) )
+		res = ax1->per;
+    return res;
 }
 
-nat alturaTABBPersonas(TABBPersonas abbPersonas){
-    return 0;
+//--- alturaTABBP
+
+static int max(int a, int b )
+{
+	return ( a > b ? a : b );
 }
 
-TPersona maxCITPersonaTABBPersonas(TABBPersonas abbPersonas){
-    return NULL;
+static nat alturaTABBP( TABBPersonas t )
+{
+	if (t == NULL)
+	   	return 0;
+	else
+		return ( 1+max( alturaTABBP(t->left),alturaTABBP(t->right)) );
 }
 
-void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona){
 
+nat alturaTABBPersonas(TABBPersonas abbPersonas)
+{
+    return alturaTABBP( abbPersonas );
 }
 
-int cantidadTABBPersonas(TABBPersonas abbPersonas){
-    return 0;
+//------- maxCITPersona
+/*
+static TABBPersonas  MaxCIP(TABBPersonas & t)
+{
+	if (t->right==NULL)
+	{
+		TABBPersonas  max = t;
+		t = t->left;
+		return max;
+	}
+	else
+	   	return MaxCIP(t->right);
 }
 
-TPersona obtenerNesimaPersonaTABBPersonas(TABBPersonas abbPersonas, int n){
-    return NULL;
+*/
+static TABBPersonas  MaxCIP(TABBPersonas  t)
+{
+	if (t==NULL)
+	   	return NULL;
+	else
+	{
+	   	TABBPersonas max = t; // inicializamos con la raíz
+		TABBPersonas maxRec = MaxCIP(t->left);
+		if (maxRec!=NULL && (maxRec->key > max->key) )
+			max = maxRec; // se considera el max de t->izq
+		maxRec = MaxCIP(t->right);
+		if (maxRec!=NULL && ( maxRec->key > max->key) )
+			max = maxRec; // se considera el max de t->der
+		return max;
+	}
 }
 
-TABBPersonas filtradoPorFechaDeNacimientoTABBPersonas(TABBPersonas abbPersonas, TFecha fecha, int criterio){
+
+TPersona maxCITPersonaTABBPersonas(TABBPersonas abbPersonas)
+{
+    return MaxCIP(abbPersonas)->per;
+}
+
+//---- removerTP_TABBP -----------------
+
+/*
+void elimABB (Ord clave, ABB & t)
+{
+	if (t!=NULL)
+	{
+		if (clave < t->key)
+			elimABB(…);
+		else if (clave > t->key)
+			elimABB(…);
+		else
+	   	{
+		   	\\ clave == t->key
+			if (t->right == NULL)
+			{
+				ABB aBorrar = t;
+				t = t->left;
+				delete aBorrar;
+			}
+			else if (t->left == NULL)
+			{
+				…
+			}
+			else
+		   	{
+				ABB min_t_der = minimo(t->right);
+				t->key = …
+				t->info = …
+				elimABB(t->key,t->right);
+			}
+		}
+	}
+}
+*/
+//---------****************----------------
+
+
+// Función para encontrar el nodo con la clave máxima en un subárbol
+/*
+TABBPersonas  TABBPmax(TABBPersonas tmax)
+{
+    while (tmax->right != NULL)
+        tmax = tmax->right;
+    return tmax;
+}
+*/
+//void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
+//void elimABB (Ord clave, ABB & t)
+TABBPersonas  elimTABBP(TABBPersonas t , int key)
+{
+    if(t == NULL) return t;
+
+    // Búsqueda del nodo a eliminar
+    if (key < t->key)
+   	{
+        t->left = elimTABBP(t->left, key);
+    }
+   	else if(key > t->key)
+   	{
+        t->right = elimTABBP(t->right, key);
+    }
+   	else
+   	{
+        // Caso 1: Nodo hoja o con un solo hijo
+        if (t->left == NULL)
+		{
+            TABBPersonas taux = t->right;
+            //free(t);
+			liberarTPersona(t->per);
+			delete t;
+            return taux;
+		}
+	   	else if(t->right == NULL)
+		{
+            TABBPersonas  taux = t->left;
+            //free(raiz);
+			liberarTPersona( t->per);
+			delete t;
+            return taux;
+        }
+
+        // Caso 2: Nodo con dos hijos -> Reemplazar por el máximo del subárbol izquierdo
+        // TABBPersonas  taux = TABBPmax(t->left);
+        TABBPersonas  taux = MaxCIP(t->left);
+        t->key = taux->key;  // Copio clave del predecesor.
+		t->per = taux->per;   // Copio dato.
+        t->left = elimTABBP(t->left, taux->key);  // Elimino  predecesor
+    }
+    return t;
+}
+
+void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
+{
+	elimTABBP( abbPersonas, ciPersona );
+	// busco persona.
+	// remuevo.
+}
+
+//----------CantidadTABBP
+
+static int cantTABBP( TABBPersonas t )
+{
+	if (t == NULL)
+	   	return 0;
+	else
+		return ( 1+cantTABBP(t->left)+cantTABBP(t->right) );
+}
+
+int cantidadTABBPersonas(TABBPersonas abbPersonas)
+{
+    return cantTABBP( abbPersonas );
+}
+
+//----- obtenerNesP_TABBP
+
+TPersona obtenerNesimaPersonaTABBPersonas(TABBPersonas abbPersonas, int n)
+{
+//	TPersona res;
+//     return res;
+	return NULL;
+}
+
+//--------- filtradoTABBP
+
+TABBPersonas filtradoPorFechaDeNacimientoTABBPersonas(TABBPersonas abbPersonas, TFecha fecha, int criterio)
+{
     return NULL;
 }
 
@@ -347,6 +552,33 @@ void aplanarEnLista (ABB t, Lista & l)
 		aplanarEnLista(t->left,l);
 	}
 }
+
+// COPIA
+AB copia (AB t){
+if (t == NULL) return NULL;
+else
+{ AB rt = new NodoAB;
+rt -> item = t -> item;
+rt -> left = copia (t -> left);
+rt -> right = copia (t -> right);
+return rt;
+}
+}
+
+PRE: t no tiene elementos repetidos
+AB maximo(AB t){
+if (t==NULL) return NULL;
+else{ AB max = t; // inicializamos con la raíz
+AB maxRec = maximo(t->izq);
+if (maxRec!=NULL && maxRec->dato > max->dato)
+max = maxRec; // se considera el max de t->izq
+maxRec = maximo(t->der);
+if (maxRec!=NULL && maxRec->dato > max->dato)
+max = maxRec; // se considera el max de t->der
+return max;
+}
+}
+
 
 */
 
