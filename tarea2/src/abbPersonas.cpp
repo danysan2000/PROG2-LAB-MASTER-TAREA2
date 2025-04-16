@@ -184,40 +184,75 @@ TPersona maxCITPersonaTABBPersonas(TABBPersonas abbPersonas)
 }
 
 //---- removerTP_TABBP -----------------
+//	……………… …  …
 
-/*
-void elimABB (Ord clave, ABB & t)
+static TABBPersonas maximo( TABBPersonas t)
+{
+	if (t==NULL) return NULL;
+	else
+	{
+		while(t->right!=NULL)
+		{
+			t = t->right;
+		}
+		return t;
+	}
+}
+
+
+void elimTABBP(int clave,  TABBPersonas & t )
 {
 	if (t!=NULL)
 	{
-		if (clave < t->key)
-			elimABB(…);
-		else if (clave > t->key)
-			elimABB(…);
+		if(clave < t->key)
+			elimTABBP(clave, t->left );
+		else if(clave > t->key)
+			elimTABBP(clave, t->right);
 		else
 	   	{
-		   	\\ clave == t->key
+		   	//  clave == t->key
+			//liberarTPersona(t->per);
 			if (t->right == NULL)
 			{
-				ABB aBorrar = t;
+				TABBPersonas aBorrar = t;
 				t = t->left;
+				//liberarTPersona(aBorrar->per);
 				delete aBorrar;
 			}
 			else if (t->left == NULL)
 			{
-				…
+				TABBPersonas aBorrar = t;
+				t = t->right;
+				// liberarTPersona(aBorrar->per);
+				delete aBorrar; 
 			}
 			else
 		   	{
-				ABB min_t_der = minimo(t->right);
-				t->key = …
-				t->info = …
-				elimABB(t->key,t->right);
+				TABBPersonas max_t_izq = maximo(t->left);
+				t->key = max_t_izq->key;
+				//liberarTPersona(t->per);
+				t->per = max_t_izq->per;
+				elimTABBP(t->key,t->left);
 			}
 		}
 	}
 }
+
+/*
+ABB minimo (ABB t)
+{
+	if (t==NULL) return NULL;
+	else
+	{
+		while(t->left!=NULL)
+		{
+			t = t->left;
+		}
+		return t;
+	}
+}
 */
+
 //---------****************----------------
 
 
@@ -232,7 +267,9 @@ TABBPersonas  TABBPmax(TABBPersonas tmax)
 */
 //void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
 //void elimABB (Ord clave, ABB & t)
-TABBPersonas  elimTABBP(TABBPersonas t , int key)
+
+/*
+TABBPersonas  elimTABBP(TABBPersonas &t , int key)
 {
     if(t == NULL) return t;
 
@@ -264,22 +301,60 @@ TABBPersonas  elimTABBP(TABBPersonas t , int key)
 			delete t;
             return taux;
         }
-
         // Caso 2: Nodo con dos hijos -> Reemplazar por el máximo del subárbol izquierdo
         // TABBPersonas  taux = TABBPmax(t->left);
-        TABBPersonas  taux = MaxCIP(t->left);
+        TABBPersonas  taux = maximo( t->left);  // MaxCIP(t->left);
         t->key = taux->key;  // Copio clave del predecesor.
 		t->per = taux->per;   // Copio dato.
         t->left = elimTABBP(t->left, taux->key);  // Elimino  predecesor
     }
     return t;
 }
+*/
+static void borrarNodoCorrectamente(int key, TABBPersonas &t)
+{
+    if (t == nullptr) return;
+
+    if (key < t->key) {
+        borrarNodoCorrectamente(key, t->left);
+    } else if (key > t->key) {
+        borrarNodoCorrectamente(key, t->right);
+    } else {
+        // Nodo encontrado
+        if (t->left == nullptr) {
+            // Caso sin hijo izquierdo (incluye hojas)
+            TABBPersonas temp = t->right;
+            delete t;
+            t = temp;  // Actualiza la referencia correctamente
+        } else if (t->right == nullptr) {
+            // Caso sin hijo derecho
+            TABBPersonas temp = t->left;
+            delete t;
+            t = temp;  // Actualiza la referencia
+        } else {
+            // Caso con dos hijos - Estrategia diferente
+            // Encontrar predecesor inorder (máximo en subárbol izquierdo)
+            TABBPersonas predecesor = t->left;
+            while (predecesor->right != nullptr) {
+                predecesor = predecesor->right;
+            }
+            
+            // Copiar solo los datos
+            t->key = predecesor->key;
+            t->per = predecesor->per;
+            
+            // Borrar el predecesor recursivamente
+            borrarNodoCorrectamente(predecesor->key, t->left);
+        }
+    }
+}
 
 void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
 {
-	elimTABBP( abbPersonas, ciPersona );
-	// busco persona.
-	// remuevo.
+	// elimTABBP( ciPersona , abbPersonas );
+	// borrarNodo( ciPersona , abbPersonas );
+	// borrarNodoCompleto( ciPersona , abbPersonas );
+	borrarNodoCorrectamente( ciPersona , abbPersonas );
 }
 
 //----------CantidadTABBP
