@@ -186,54 +186,96 @@ TPersona maxCITPersonaTABBPersonas(TABBPersonas abbPersonas)
 //---- removerTP_TABBP -----------------
 //	……………… …  …
 
-static TABBPersonas maximo( TABBPersonas t)
+// maximin 
+// static TABBPersonas maximin( TABBPersonas t, TABBPersonas &tant)
+static TABBPersonas maximin( TABBPersonas t)
 {
-	if (t==NULL) return NULL;
-	else
-	{
-		while(t->right!=NULL)
-		{
-			t = t->right;
-		}
-		return t;
-	}
+	if (t==NULL)
+		return NULL;
+	while( t->right!=NULL )
+	   t = t->right;
+	return t;
 }
 
 
-void elimTABBP(int clave,  TABBPersonas & t )
+// static TABBPersonas minimax ( TABBPersonas t, TABBPersonas &tant)
+static TABBPersonas minimax ( TABBPersonas t)
 {
-	if (t!=NULL)
+	if (t==NULL)
+		return NULL;
+	while( t->left != NULL )
+		t = t->left;
+	return t;
+}
+
+void elimTABBP(int clave,  TABBPersonas & t , int status)
+{
+	if (t==NULL)
+		return ;
+
+	if(clave < t->key)
+		elimTABBP(clave, t->left, status );
+	else if(clave > t->key)
+		elimTABBP(clave, t->right, status);
+	else
 	{
-		if(clave < t->key)
-			elimTABBP(clave, t->left );
-		else if(clave > t->key)
-			elimTABBP(clave, t->right);
-		else
-	   	{
-		   	//  clave == t->key
-			//liberarTPersona(t->per);
-			if (t->right == NULL)
-			{
-				TABBPersonas aBorrar = t;
-				t = t->left;
-				//liberarTPersona(aBorrar->per);
-				delete aBorrar;
-			}
-			else if (t->left == NULL)
-			{
-				TABBPersonas aBorrar = t;
-				t = t->right;
-				// liberarTPersona(aBorrar->per);
-				delete aBorrar; 
-			}
-			else
-		   	{
-				TABBPersonas max_t_izq = maximo(t->left);
-				t->key = max_t_izq->key;
-				//liberarTPersona(t->per);
-				t->per = max_t_izq->per;
-				elimTABBP(t->key,t->left);
-			}
+		// ****  clave == t->key **** lo encontro !!!
+		TABBPersonas  taux=NULL;
+		//TPersona tauxP;
+		int cond_op; // variable de condicion de operacion.
+		cond_op = ( t->left == NULL ) * 2 + ( t->right == NULL ) * 1 ;
+		switch( cond_op)
+		{
+			case 0:		// 2 nodos ocupados
+				//break; misma situacion en 0 y 1
+			case 1:		// nodo izq.
+				// tmin = maximin( t->left, tant);       // maximo dentro de los minimos
+				// t = t->left;
+				// liberarTPersona(t->per);
+
+				//t->per = tmin->per;
+				//t->key = tmin->key;
+				//if( tmin == tant )
+				//	t->left = NULL;
+				//else
+				//	tant->right = NULL;
+				//delete tmin;
+				taux   = maximin( t->left);
+				liberarTPersona( t->per);
+				// tauxP  = t->per;
+				t->key = taux->key;
+				t->per = taux->per;
+				elimTABBP(t->key, t->left, 0);
+				// liberarTPersona( tauxP);
+				break;
+			case 2:		// nodo der.
+				/*
+				tmax = minimax	(t->right, tant);	 // minimo dentro de los maximos.
+				liberarTPersona(t->per);
+				t->per = tmax->per;
+				t->key = tmax->key;
+				if( tmax == tant )
+					t->right = NULL;
+				else 
+					tant->left = NULL;
+				delete tmax;
+				*/
+				taux = minimax( t->right);
+				liberarTPersona(t->per);
+				// tauxP = t->per;
+				t->key = taux->key;
+				t->per = taux->per;
+				elimTABBP(t->key, t->right,0);
+				// liberarTPersona(tauxP);
+				break;
+			case 3:		// Hoja.
+				// liberarTPersona(t->per);
+				//liberarTPersona( t->per);
+				if( status )
+					liberarTPersona( t->per);
+				delete t;
+				t = NULL;
+				break;
 		}
 	}
 }
@@ -275,13 +317,9 @@ TABBPersonas  elimTABBP(TABBPersonas &t , int key)
 
     // Búsqueda del nodo a eliminar
     if (key < t->key)
-   	{
         t->left = elimTABBP(t->left, key);
-    }
    	else if(key > t->key)
-   	{
         t->right = elimTABBP(t->right, key);
-    }
    	else
    	{
         // Caso 1: Nodo hoja o con un solo hijo
@@ -311,50 +349,10 @@ TABBPersonas  elimTABBP(TABBPersonas &t , int key)
     return t;
 }
 */
-static void borrarNodoCorrectamente(int key, TABBPersonas &t)
-{
-    if (t == nullptr) return;
-
-    if (key < t->key) {
-        borrarNodoCorrectamente(key, t->left);
-    } else if (key > t->key) {
-        borrarNodoCorrectamente(key, t->right);
-    } else {
-        // Nodo encontrado
-        if (t->left == nullptr) {
-            // Caso sin hijo izquierdo (incluye hojas)
-            TABBPersonas temp = t->right;
-            delete t;
-            t = temp;  // Actualiza la referencia correctamente
-        } else if (t->right == nullptr) {
-            // Caso sin hijo derecho
-            TABBPersonas temp = t->left;
-            delete t;
-            t = temp;  // Actualiza la referencia
-        } else {
-            // Caso con dos hijos - Estrategia diferente
-            // Encontrar predecesor inorder (máximo en subárbol izquierdo)
-            TABBPersonas predecesor = t->left;
-            while (predecesor->right != nullptr) {
-                predecesor = predecesor->right;
-            }
-            
-            // Copiar solo los datos
-            t->key = predecesor->key;
-            t->per = predecesor->per;
-            
-            // Borrar el predecesor recursivamente
-            borrarNodoCorrectamente(predecesor->key, t->left);
-        }
-    }
-}
 
 void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
 {
-	// elimTABBP( ciPersona , abbPersonas );
-	// borrarNodo( ciPersona , abbPersonas );
-	// borrarNodoCompleto( ciPersona , abbPersonas );
-	borrarNodoCorrectamente( ciPersona , abbPersonas );
+	elimTABBP( ciPersona , abbPersonas, 1 );
 }
 
 //----------CantidadTABBP
@@ -570,28 +568,30 @@ void insABB (Ord clave, T dato, ABB & t)
 //Eliminación en un ABB
 //
 
-void elimABB (Ord clave, ABB & t){
-if (t!=NULL){
-if (clave < t->key)
-elimABB(…);
-else if (clave > t->key)
-elimABB(…);
-else { \\ clave == t->key
-if (t->right == NULL){
-ABB aBorrar = t;
-t = t->left;
-delete aBorrar;
-}
-else if (t->left == NULL){
-…
-}
-else {
-ABB min_t_der = minimo(t->right);
-t->key = …
-t->info = …
-elimABB(t->key,t->right);
-}
-}
+void elimABB (Ord clave, ABB & t)
+{
+if (t!=NULL)
+{
+	if (clave < t->key)
+	elimABB(…);
+	else if (clave > t->key)
+		elimABB(…);
+	else { \\ clave == t->key
+		if (t->right == NULL){
+			ABB aBorrar = t;
+			t = t->left;
+			delete aBorrar;
+		}
+		else if (t->left == NULL){
+		…
+		}		
+		else {
+			ABB min_t_der = minimo(t->right);
+			t->key = …
+			t->info = …
+			elimABB(t->key,t->right);
+		}
+	}
 }
 }
 
