@@ -246,21 +246,6 @@ void elimTABBP(int clave,  TABBPersonas & t , int status)
 	}
 }
 
-/*
-
-   // esta serviria si el arbol esta balanceado y valido 
-TABBPersonas  TABBPmax(TABBPersonas tmax)
-{
-	if ( tmax->right == NULL )
-		tmax = tmax->left != ? tmax->left : tmax ; 
-	else
-		while (tmax->right != NULL)
-			tmax = tmax->right;
-    return tmax;
-}
-
-*/
-
 void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
 {
 	elimTABBP( ciPersona , abbPersonas, 1 );
@@ -301,21 +286,43 @@ static void enesTABBP_enOrden (TABBPersonas t , int n,int & cnt , TABBPersonas &
 }
 
 
-
 TPersona obtenerNesimaPersonaTABBPersonas(TABBPersonas abbPersonas, int n)
 {
 	TABBPersonas rslt = NULL;
 	int cnt = 0;
-	// enesTABBP_enOrden (TABBPersonas t , int n,int &cnt , TABBPersonas &rslt )
 	enesTABBP_enOrden ( abbPersonas ,  n, cnt ,   rslt );
 	return rslt->per;
 }
 
 //--------- filtradoTABBP
+static void filtrado_TABBP( TABBPersonas t, TABBPersonas &tnew,  TFecha fecha, int crit)
+{
+	char select, cmp_fech;
+	if ( t == NULL ) return;
+	// filtrado en posOrder.
+	filtrado_TABBP( t->left , tnew, fecha, crit );
+	filtrado_TABBP( t->right, tnew, fecha, crit );
+	// chequeo de condiciones de Fecha.
+	// select bool
+	cmp_fech = compararTFechas( fechaNacimientoTPersona( t->per) , fecha );
+	select  =( (crit < 0  ) &&  (cmp_fech   <  0) ) ||
+   			 ( (crit == 0 ) && ( cmp_fech   == 0) ) ||
+   			 ( (crit > 0  ) && ( cmp_fech   >  0) );
+
+	// insertar
+	if( select )
+		//insAbbPersona(int key, TPersona dato, TABBPersonas & tnew)
+		insAbbPersona(t->key, copiarTPersona(t->per ), tnew);
+}
 
 TABBPersonas filtradoPorFechaDeNacimientoTABBPersonas(TABBPersonas abbPersonas, TFecha fecha, int criterio)
 {
-    return NULL;
+	// para esta funcion tengo que recorerlo completo el arbol ya que 
+	// la fecha es el criterio de seleccion y el arbol no esta ordenado por fecha .
+	TABBPersonas tnew;
+	tnew = crearTABBPersonasVacio();
+	filtrado_TABBP( abbPersonas,  tnew,  fecha, criterio);
+    return tnew;
 }
 
 //----------------------------------------------------------------------
