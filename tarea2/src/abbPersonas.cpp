@@ -97,12 +97,15 @@ void liberarTABBPersonas(TABBPersonas &abbPersonas)
 
 static TABBPersonas buscarTABBPersonas(int key , TABBPersonas t)
 {
-	while( ( t != NULL) && (t->key != key) )
+	while( (t != NULL) && (t->key != key) )
 	{
+		t = ( t->key > key ) ? t->left : t->right;
+		/*
 		if (t->key > key)
 			t = t->left;
 		else
 		   	t = t->right;
+		*/
 	}
 	return t;
 }
@@ -146,20 +149,15 @@ nat alturaTABBPersonas(TABBPersonas abbPersonas)
 }
 
 //------- maxCITPersona
-/*
-static TABBPersonas  MaxCIP(TABBPersonas & t)
+
+static TABBPersonas  MaxCIP(TABBPersonas  t)
 {
-	if (t->right==NULL)
-	{
-		TABBPersonas  max = t;
-		t = t->left;
-		return max;
-	}
-	else
-	   	return MaxCIP(t->right);
+	while ( t->right!=NULL)
+	   	t = t->right;
+	return t;
 }
 
-*/
+/*
 static TABBPersonas  MaxCIP(TABBPersonas  t)
 {
 	if (t==NULL)
@@ -176,7 +174,7 @@ static TABBPersonas  MaxCIP(TABBPersonas  t)
 		return max;
 	}
 }
-
+*/
 
 TPersona maxCITPersonaTABBPersonas(TABBPersonas abbPersonas)
 {
@@ -187,24 +185,20 @@ TPersona maxCITPersonaTABBPersonas(TABBPersonas abbPersonas)
 //	……………… …  …
 
 // maximin 
-// static TABBPersonas maximin( TABBPersonas t, TABBPersonas &tant)
 static TABBPersonas maximin( TABBPersonas t)
 {
-	if (t==NULL)
-		return NULL;
-	while( t->right!=NULL )
-	   t = t->right;
+	if (t!=NULL)
+		while( t->right!=NULL )
+	   		t = t->right;
 	return t;
 }
 
 
-// static TABBPersonas minimax ( TABBPersonas t, TABBPersonas &tant)
 static TABBPersonas minimax ( TABBPersonas t)
 {
-	if (t==NULL)
-		return NULL;
-	while( t->left != NULL )
-		t = t->left;
+	if (t!=NULL)
+		while( t->left != NULL )
+			t = t->left;
 	return t;
 }
 
@@ -221,7 +215,6 @@ void elimTABBP(int clave,  TABBPersonas & t , int status)
 	{
 		// ****  clave == t->key **** lo encontro !!!
 		TABBPersonas  taux=NULL;
-		//TPersona tauxP;
 		int cond_op; // variable de condicion de operacion.
 		cond_op = ( t->left == NULL ) * 2 + ( t->right == NULL ) * 1 ;
 		switch( cond_op)
@@ -229,49 +222,22 @@ void elimTABBP(int clave,  TABBPersonas & t , int status)
 			case 0:		// 2 nodos ocupados
 				//break; misma situacion en 0 y 1
 			case 1:		// nodo izq.
-				// tmin = maximin( t->left, tant);       // maximo dentro de los minimos
-				// t = t->left;
-				// liberarTPersona(t->per);
-
-				//t->per = tmin->per;
-				//t->key = tmin->key;
-				//if( tmin == tant )
-				//	t->left = NULL;
-				//else
-				//	tant->right = NULL;
-				//delete tmin;
 				taux   = maximin( t->left);
 				liberarTPersona( t->per);
-				// tauxP  = t->per;
 				t->key = taux->key;
 				t->per = taux->per;
 				elimTABBP(t->key, t->left, 0);
-				// liberarTPersona( tauxP);
 				break;
 			case 2:		// nodo der.
-				/*
-				tmax = minimax	(t->right, tant);	 // minimo dentro de los maximos.
-				liberarTPersona(t->per);
-				t->per = tmax->per;
-				t->key = tmax->key;
-				if( tmax == tant )
-					t->right = NULL;
-				else 
-					tant->left = NULL;
-				delete tmax;
-				*/
 				taux = minimax( t->right);
 				liberarTPersona(t->per);
-				// tauxP = t->per;
 				t->key = taux->key;
 				t->per = taux->per;
 				elimTABBP(t->key, t->right,0);
-				// liberarTPersona(tauxP);
 				break;
 			case 3:		// Hoja.
-				// liberarTPersona(t->per);
-				//liberarTPersona( t->per);
-				if( status )
+				if( status ) // Importante variable status para diferenciar si estoy buscando la clave o
+							 // estoy buscando el maximin o minimax.
 					liberarTPersona( t->per);
 				delete t;
 				t = NULL;
@@ -281,73 +247,18 @@ void elimTABBP(int clave,  TABBPersonas & t , int status)
 }
 
 /*
-ABB minimo (ABB t)
-{
-	if (t==NULL) return NULL;
-	else
-	{
-		while(t->left!=NULL)
-		{
-			t = t->left;
-		}
-		return t;
-	}
-}
-*/
 
-//---------****************----------------
-
-
-// Función para encontrar el nodo con la clave máxima en un subárbol
-/*
+   // esta serviria si el arbol esta balanceado y valido 
 TABBPersonas  TABBPmax(TABBPersonas tmax)
 {
-    while (tmax->right != NULL)
-        tmax = tmax->right;
+	if ( tmax->right == NULL )
+		tmax = tmax->left != ? tmax->left : tmax ; 
+	else
+		while (tmax->right != NULL)
+			tmax = tmax->right;
     return tmax;
 }
-*/
-//void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
-//void elimABB (Ord clave, ABB & t)
 
-/*
-TABBPersonas  elimTABBP(TABBPersonas &t , int key)
-{
-    if(t == NULL) return t;
-
-    // Búsqueda del nodo a eliminar
-    if (key < t->key)
-        t->left = elimTABBP(t->left, key);
-   	else if(key > t->key)
-        t->right = elimTABBP(t->right, key);
-   	else
-   	{
-        // Caso 1: Nodo hoja o con un solo hijo
-        if (t->left == NULL)
-		{
-            TABBPersonas taux = t->right;
-            //free(t);
-			liberarTPersona(t->per);
-			delete t;
-            return taux;
-		}
-	   	else if(t->right == NULL)
-		{
-            TABBPersonas  taux = t->left;
-            //free(raiz);
-			liberarTPersona( t->per);
-			delete t;
-            return taux;
-        }
-        // Caso 2: Nodo con dos hijos -> Reemplazar por el máximo del subárbol izquierdo
-        // TABBPersonas  taux = TABBPmax(t->left);
-        TABBPersonas  taux = maximo( t->left);  // MaxCIP(t->left);
-        t->key = taux->key;  // Copio clave del predecesor.
-		t->per = taux->per;   // Copio dato.
-        t->left = elimTABBP(t->left, taux->key);  // Elimino  predecesor
-    }
-    return t;
-}
 */
 
 void removerTPersonaTABBPersonas(TABBPersonas &abbPersonas, int ciPersona)
@@ -372,11 +283,32 @@ int cantidadTABBPersonas(TABBPersonas abbPersonas)
 
 //----- obtenerNesP_TABBP
 
+	
+static void enesTABBP_enOrden (TABBPersonas t , int n,int & cnt , TABBPersonas &rslt )
+{
+	if (t == NULL || rslt != NULL ) return;
+	
+	enesTABBP_enOrden(t->left, n , cnt , rslt );
+	if (rslt != NULL ) return;
+	
+	cnt++;
+	if ( cnt == n )
+	{
+		rslt = t;
+		return ;
+	}
+	enesTABBP_enOrden(t->right, n , cnt , rslt );
+}
+
+
+
 TPersona obtenerNesimaPersonaTABBPersonas(TABBPersonas abbPersonas, int n)
 {
-//	TPersona res;
-//     return res;
-	return NULL;
+	TABBPersonas rslt = NULL;
+	int cnt = 0;
+	// enesTABBP_enOrden (TABBPersonas t , int n,int &cnt , TABBPersonas &rslt )
+	enesTABBP_enOrden ( abbPersonas ,  n, cnt ,   rslt );
+	return rslt->per;
 }
 
 //--------- filtradoTABBP
