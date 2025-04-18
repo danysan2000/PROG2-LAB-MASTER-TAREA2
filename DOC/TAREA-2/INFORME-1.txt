@@ -1,0 +1,15 @@
+-------------------------------------
+Informe sobre tarea 2. cosas interesantes.
+
+Sobre recursividad , tener un varialbe status para controlar 
+la recursivdad en la funcion.
+
+Concepto sobre referencia en C++, es un alias. sobre C seria **p ( puntero a un puntero ) lo mas parecido.
+&p no es un puntero depende de la definicion de p, seria una referncia en el argumento de la funcion 
+un alias de la misma variable de donde fue llamada.
+
+Interesante el manejo de los tree-grafos con recursividad.
+ya que se aprovecha la informacion del nodo inmediato anterior.
+
+
+

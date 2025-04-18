@@ -1,4 +1,9 @@
 
+// CODIGO AUXILIAR Y DE PRUEBAS EN LA IMPLEMENTACION DE ABBPERSONAS.
+//
+
+
+
 // Encontrar el mínimo (siempre el nodo más a la izquierda)
 Nodo* encontrarMin(Nodo* raiz) {
     if (raiz == NULL) return NULL;  // Árbol vacío
