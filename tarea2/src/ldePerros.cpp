@@ -1,3 +1,4 @@
+// vim: set tabstop=4 shiftwidth=4 
 #include "../include/ldePerros.h"
 
 typedef struct rep_nodo_perros *TLDEPerrosNodo;
