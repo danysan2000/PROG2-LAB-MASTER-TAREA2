@@ -220,14 +220,16 @@ void elimTABBP(int clave,  TABBPersonas & t , int status)
 				//break; misma situacion en 0 y 1
 			case 1:		// nodo izq.
 				taux   = maximin( t->left);
-				liberarTPersona( t->per);
+				if (status ) 
+					liberarTPersona( t->per);
 				t->key = taux->key;
 				t->per = taux->per;
 				elimTABBP(t->key, t->left, 0);
 				break;
 			case 2:		// nodo der.
 				taux = minimax( t->right);
-				liberarTPersona(t->per);
+				if (status ) 
+					liberarTPersona(t->per);
 				t->key = taux->key;
 				t->per = taux->per;
 				elimTABBP(t->key, t->right,0);
